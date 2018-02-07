@@ -11,9 +11,12 @@ import Foundation
 /** Operation for file uploading. */
 internal class FileUploadOperation: WriteStreamOperation {
     fileprivate var fileHandle: FileHandle?
-    var fileURL: URL!
+    var fileURL: URL?
     
     override func start() {
+        guard let fileURL = self.fileURL else {
+            return
+        }
         do {
             fileHandle = try FileHandle(forReadingFrom: fileURL)
             startOperationWithStream(self.writeStream)

@@ -67,7 +67,7 @@ internal class ResourceListOperation: ReadStreamOperation {
 
         var offset = 0
         let bytes = inputData.bytes.bindMemory(to: UInt8.self, capacity: inputData.length)
-        let totalBytes = CFIndex(self.inputData!.length)
+        let totalBytes = CFIndex(inputData.length)
         var parsedBytes = CFIndex(0)
         let entity = UnsafeMutablePointer<Unmanaged<CFDictionary>?>.allocate(capacity: 1)
         var resources = [ResourceItem]()
@@ -102,7 +102,11 @@ internal class ResourceListOperation: ReadStreamOperation {
                     item.name = encodedName as String
                 }
             }
-            item.path = self.path! + item.name
+            if let path = path {
+                item.path = path + item.name
+            } else {
+                item.path = item.name
+            }
         }
         if let owner = ftpResources[kCFFTPResourceOwner as String] as? String {
             item.owner = owner
@@ -132,10 +136,10 @@ internal class ResourceListOperation: ReadStreamOperation {
             let buffer = UnsafeMutablePointer<UInt8>.allocate(capacity: 1024)
             let result = inputStream.read(buffer, maxLength: 1024)
             if result > 0 {
-                if self.inputData == nil {
-                    self.inputData = NSMutableData(bytes: buffer, length: result)
-                } else {
-                    self.inputData!.append(buffer, length: result)
+                if inputData == nil {
+                    inputData = NSMutableData(bytes: buffer, length: result)
+                } else if let inputData = self.inputData {
+                    inputData.append(buffer, length: result)
                 }
             }
             buffer.deinitialize()

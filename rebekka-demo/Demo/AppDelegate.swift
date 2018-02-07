@@ -14,7 +14,7 @@ import RebekkaTouch
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
     
-    var session: Session!
+    private var session: Session?
     
     var window: UIWindow?
     
@@ -34,7 +34,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
     
     func testList() {
-        self.session.list("/") { [unowned self]
+        session?.list("/") { [unowned self]
             (resources, error) -> Void in
             print("List directory with result:\n\(String(describing: resources)), error: \(String(describing: error))\n\n")
             
@@ -44,7 +44,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func testUpload() {
         if let URL = Bundle.main.url(forResource: "TestUpload", withExtension: "png") {
             let path = "/upload/\(UUID().uuidString).png"
-            self.session.upload(URL, path: path) {
+            session?.upload(URL, path: path) {
                 (result, error) -> Void in
                 print("Upload file with result:\n\(result), error: \(String(describing: error))\n\n")
             }
@@ -52,7 +52,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
     
     func testDownload(_ path: String) {
-        self.session.download(path, progressHandler: { progress in
+        session?.download(path, progressHandler: { progress in
             DispatchQueue.main.async {
                 print("progress", progress)
             }
@@ -61,7 +61,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             print("Download file with result:\n\(String(describing: fileURL)), error: \(String(describing: error))\n\n")
             if let fileURL = fileURL {
                 do {
-                    //                    try FileManager.default.removeItem(at: fileURL)
+                    try FileManager.default.removeItem(at: fileURL)
                 } catch let error as NSError {
                     print("Error: \(error)")
                 }
@@ -72,7 +72,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     
     func testCreate() {
         let name = UUID().uuidString
-        self.session.createDirectory("/upload/\(name)") {
+        session?.createDirectory("/upload/\(name)") {
             (result, error) -> Void in
             print("Create directory with result:\n\(result), error: \(String(describing: error))")
         }

@@ -17,10 +17,11 @@ internal class FileDownloadOperation: ReadStreamOperation {
     
     override func start() {
         let filePath = (NSTemporaryDirectory() as NSString).appendingPathComponent(path ?? UUID().uuidString)
-        self.fileURL = URL(fileURLWithPath: filePath)
+        let fileURL = URL(fileURLWithPath: filePath)
+        self.fileURL = fileURL
         do {
-            try Data().write(to: self.fileURL!, options: NSData.WritingOptions.atomic)
-            fileHandle = try FileHandle(forWritingTo: self.fileURL!)
+            try Data().write(to: fileURL, options: NSData.WritingOptions.atomic)
+            fileHandle = try FileHandle(forWritingTo: fileURL)
             startOperationWithStream(self.readStream)
         } catch let error as NSError {
             self.error = error
@@ -47,22 +48,23 @@ internal class FileDownloadOperation: ReadStreamOperation {
     
     override func streamEventHasBytes(_ aStream: Stream) -> (Bool, NSError?) {
         guard let totalBytesSize = aStream.property(forKey: Stream.PropertyKey(rawValue: kCFStreamPropertyFTPResourceSize as String)) as? Int,
-            let inputStream = aStream as? InputStream else {
+            let inputStream = aStream as? InputStream,
+            let fileHandle = self.fileHandle else {
                 return (true, nil)
         }
         var downloadedBytes: Int = 0
-        var parsetBytes: Int = 0
+        var parsedBytes: Int = 0
         repeat {
-            parsetBytes = inputStream.read(self.temporaryBuffer, maxLength: 65536)
-            downloadedBytes += parsetBytes
+            parsedBytes = inputStream.read(self.temporaryBuffer, maxLength: 65536)
+            downloadedBytes += parsedBytes
             progressHandler?(Float(downloadedBytes) / Float(totalBytesSize))
-            if parsetBytes > 0 {
+            if parsedBytes > 0 {
                 autoreleasepool {
-                    let data = Data(bytes: UnsafePointer<UInt8>(self.temporaryBuffer), count: parsetBytes)
-                    self.fileHandle!.write(data)
+                    let data = Data(bytes: UnsafePointer<UInt8>(self.temporaryBuffer), count: parsedBytes)
+                    fileHandle.write(data)
                 }
             }
-        } while (parsetBytes > 0)
+        } while (parsedBytes > 0)
         return (true, nil)
     }
 }

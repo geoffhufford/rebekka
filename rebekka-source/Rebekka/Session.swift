@@ -48,10 +48,9 @@ open class Session {
                 }
             }
         }
-        operation.path = path
-        if !path.hasSuffix("/") {
-            operation.path = operation.path! + "/"
-        }
+        
+        operation.path = !path.hasSuffix("/") ? path + "/" : path
+        
         self.operationQueue.addOperation(operation)
     }
     
@@ -66,10 +65,9 @@ open class Session {
                 }
             }
         }
-        operation.path = path
-        if !path.hasSuffix("/") {
-            operation.path = operation.path! + "/"
-        }
+        
+        operation.path = !path.hasSuffix("/") ? path + "/" : path
+        
         self.operationQueue.addOperation(operation)
     }
     
@@ -139,10 +137,10 @@ public struct SessionConfiguration {
     
     public init() { }
     
-    internal var url: Foundation.URL {
+    internal var url: URL {
         var components = URLComponents(string: host)
         components?.scheme = "ftp"
-        return (components?.url)!
+        return components?.url ?? URL()
     }
 }
 
@@ -150,9 +148,9 @@ public struct SessionConfiguration {
 private class SessionConfigurationStorage {
     
     /** The URL to plist file. */
-    fileprivate let storageURL: URL!
+    fileprivate let storageURL: URL
     
-    init() {
+    init?() {
         storageURL = URL(fileURLWithPath: "")
     }
     

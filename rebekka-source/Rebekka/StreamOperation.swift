@@ -64,17 +64,17 @@ internal class StreamOperation: Operation, StreamDelegate {
     func startOperationWithStream(_ aStream: Stream) {
         synchronized(self) {
             self.currentStream = aStream
-            self.configureStream(self.currentStream!)
-            self.currentStream!.open()
-            self.state = .executing
+            configureStream(aStream)
+            aStream.open()
+            state = .executing
         }
     }
     
     func finishOperation() {
         synchronized(self) {
-            self.currentStream?.close()
-            self.currentStream = nil
-            self.state = .finished
+            currentStream?.close()
+            currentStream = nil
+            state = .finished
         }
     }
     
