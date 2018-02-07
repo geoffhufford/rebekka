@@ -24,7 +24,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         var configuration = SessionConfiguration()
         configuration.host = "ftp://speedtest.tele2.net"
-        self.session = Session(configuration: configuration)
+        session = Session(configuration: configuration)
         
         testList()
         //            testDownload()

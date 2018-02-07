@@ -22,7 +22,7 @@ internal class FileDownloadOperation: ReadStreamOperation {
         do {
             try Data().write(to: fileURL, options: NSData.WritingOptions.atomic)
             fileHandle = try FileHandle(forWritingTo: fileURL)
-            startOperationWithStream(self.readStream)
+            startOperationWithStream(readStream)
         } catch let error as NSError {
             self.error = error
             finishOperation()
@@ -43,7 +43,7 @@ internal class FileDownloadOperation: ReadStreamOperation {
             } catch _ {
             }
         }
-        self.fileURL = nil
+        fileURL = nil
     } 
     
     override func streamEventHasBytes(_ aStream: Stream) -> (Bool, NSError?) {
@@ -55,12 +55,12 @@ internal class FileDownloadOperation: ReadStreamOperation {
         var downloadedBytes: Int = 0
         var parsedBytes: Int = 0
         repeat {
-            parsedBytes = inputStream.read(self.temporaryBuffer, maxLength: 65536)
+            parsedBytes = inputStream.read(temporaryBuffer, maxLength: 65536)
             downloadedBytes += parsedBytes
             progressHandler?(Float(downloadedBytes) / Float(totalBytesSize))
             if parsedBytes > 0 {
                 autoreleasepool {
-                    let data = Data(bytes: UnsafePointer<UInt8>(self.temporaryBuffer), count: parsedBytes)
+                    let data = Data(bytes: UnsafePointer<UInt8>(temporaryBuffer), count: parsedBytes)
                     fileHandle.write(data)
                 }
             }

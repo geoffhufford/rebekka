@@ -36,10 +36,10 @@ internal class StreamOperation: Operation, StreamDelegate {
     }
     
     @objc func stream(_ aStream: Stream, handle eventCode: Stream.Event) {
-        if self.isCancelled {
-            self.streamEventError(aStream)
-            self.error = NSError(domain: NSCocoaErrorDomain, code: NSUserCancelledError, userInfo: nil)
-            self.finishOperation()
+        if isCancelled {
+            streamEventError(aStream)
+            error = NSError(domain: NSCocoaErrorDomain, code: NSUserCancelledError, userInfo: nil)
+            finishOperation()
             return
         }
         

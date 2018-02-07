@@ -18,6 +18,6 @@ internal class WriteStreamOperation: StreamOperation {
     }()
     
     internal override func start() {
-        startOperationWithStream(self.writeStream)
+        startOperationWithStream(writeStream)
     }
 }
