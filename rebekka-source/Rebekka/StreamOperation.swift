@@ -10,11 +10,12 @@ import Foundation
 
 /** The base class for stream operations. */
 internal class StreamOperation: Operation, StreamDelegate {
-    var path: String?
+    internal let path: String
     internal let queue: DispatchQueue
     private var currentStream: Stream?
     
-    init(configuration: SessionConfiguration, queue: DispatchQueue) {
+    init(configuration: SessionConfiguration, queue: DispatchQueue, path: String) {
+        self.path = path
         self.queue = queue
         super.init(configuration: configuration)
     }
@@ -29,9 +30,6 @@ internal class StreamOperation: Operation, StreamDelegate {
     }
     
     var fullUrl: URL {
-        guard let path = self.path else {
-            return configuration.url
-        }
         return configuration.url.appendingPathComponent(path)
     }
     

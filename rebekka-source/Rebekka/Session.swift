@@ -39,7 +39,9 @@ open class Session {
     
     /** Returns content of directory at path. */
     open func list(_ path: String, completionHandler: @escaping ResourceResultCompletionHandler) {
-        let operation = ResourceListOperation(configuration: configuration, queue: self.streamQueue)
+        let operation = ResourceListOperation(configuration: configuration,
+                                              queue: streamQueue,
+                                              path: !path.hasSuffix("/") ? path + "/" : path)
         operation.completionBlock = {
             [weak operation] in
             if let strongOperation = operation {
@@ -48,15 +50,14 @@ open class Session {
                 }
             }
         }
-        
-        operation.path = !path.hasSuffix("/") ? path + "/" : path
-        
-        self.operationQueue.addOperation(operation)
+        operationQueue.addOperation(operation)
     }
     
     /** Creates new directory at path. */
     open func createDirectory(_ path: String, completionHandler: @escaping BooleanResultCompletionHandler) {
-        let operation = DirectoryCreationOperation(configuration: configuration, queue: self.streamQueue)
+        let operation = DirectoryCreationOperation(configuration: configuration,
+                                                   queue: streamQueue,
+                                                   path: !path.hasSuffix("/") ? path + "/" : path)
         operation.completionBlock = {
             [weak operation] in
             if let strongOperation = operation {
@@ -65,10 +66,7 @@ open class Session {
                 }
             }
         }
-        
-        operation.path = !path.hasSuffix("/") ? path + "/" : path
-        
-        self.operationQueue.addOperation(operation)
+        operationQueue.addOperation(operation)
     }
     
     /**
@@ -77,7 +75,9 @@ open class Session {
     open func download(_ path: String,
                        progressHandler: DownloadProgressHandler? = nil,
                        completionHandler: FileURLResultCompletionHandler? = nil) {
-        let operation = FileDownloadOperation(configuration: configuration, queue: streamQueue)
+        let operation = FileDownloadOperation(configuration: configuration,
+                                              queue: streamQueue,
+                                              path: path)
         operation.progressHandler = progressHandler
         operation.completionBlock = {
             [weak operation] in
@@ -87,13 +87,15 @@ open class Session {
                 }
             }
         }
-        operation.path = path
-        self.operationQueue.addOperation(operation)
+        operationQueue.addOperation(operation)
     }
     
     /** Uploads file from fileURL at path. */
     open func upload(_ fileURL: URL, path: String, completionHandler: BooleanResultCompletionHandler? = nil) {
-        let operation = FileUploadOperation(configuration: configuration, queue: streamQueue)
+        let operation = FileUploadOperation(configuration: configuration,
+                                            queue: streamQueue,
+                                            path: path,
+                                            fileUrl: fileURL)
         operation.completionBlock = {
             [weak operation] in
             if let strongOperation = operation {
@@ -102,8 +104,6 @@ open class Session {
                 }
             }
         }
-        operation.path = path
-        operation.fileURL = fileURL
         operationQueue.addOperation(operation)
     }
 }

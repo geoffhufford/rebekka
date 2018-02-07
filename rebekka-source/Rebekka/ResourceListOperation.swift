@@ -76,7 +76,7 @@ internal class ResourceListOperation: ReadStreamOperation {
             if parsedBytes > 0 {
                 let value = entity.pointee?.takeUnretainedValue()
                 if let fptResource = value {
-                    resources.append(self.mapFTPResources(fptResource))
+                    resources.append(mapFTPResources(fptResource))
                 }
                 offset += parsedBytes
             }
@@ -98,15 +98,12 @@ internal class ResourceListOperation: ReadStreamOperation {
             if configuration.encoding == String.Encoding.macOSRoman {
                 item.name = name
             } else if let nameData = name.data(using: String.Encoding.macOSRoman) {
-                if let encodedName = NSString(data: nameData, encoding: self.configuration.encoding.rawValue) {
+                if let encodedName = NSString(data: nameData, encoding: configuration.encoding.rawValue) {
                     item.name = encodedName as String
                 }
             }
-            if let path = path {
-                item.path = path + item.name
-            } else {
-                item.path = item.name
-            }
+            
+            item.path = path + item.name
         }
         if let owner = ftpResources[kCFFTPResourceOwner as String] as? String {
             item.owner = owner
@@ -136,10 +133,10 @@ internal class ResourceListOperation: ReadStreamOperation {
             let buffer = UnsafeMutablePointer<UInt8>.allocate(capacity: 1024)
             let result = inputStream.read(buffer, maxLength: 1024)
             if result > 0 {
-                if inputData == nil {
-                    inputData = NSMutableData(bytes: buffer, length: result)
-                } else if let inputData = self.inputData {
+                if let inputData = self.inputData {
                     inputData.append(buffer, length: result)
+                } else {
+                    inputData = NSMutableData(bytes: buffer, length: result)
                 }
             }
             buffer.deinitialize()

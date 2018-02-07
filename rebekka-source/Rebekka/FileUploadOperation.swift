@@ -11,15 +11,17 @@ import Foundation
 /** Operation for file uploading. */
 internal class FileUploadOperation: WriteStreamOperation {
     fileprivate var fileHandle: FileHandle?
-    var fileURL: URL?
+    private let fileUrl: URL
+    
+    init(configuration: SessionConfiguration, queue: DispatchQueue, path: String, fileUrl: URL) {
+        self.fileUrl = fileUrl
+        super.init(configuration: configuration, queue: queue, path: path)
+    }
     
     override func start() {
-        guard let fileURL = self.fileURL else {
-            return
-        }
         do {
-            fileHandle = try FileHandle(forReadingFrom: fileURL)
-            startOperationWithStream(self.writeStream)
+            fileHandle = try FileHandle(forReadingFrom: fileUrl)
+            startOperationWithStream(writeStream)
         } catch let error as NSError {
             self.error = error
             fileHandle = nil
@@ -47,9 +49,9 @@ internal class FileUploadOperation: WriteStreamOperation {
         let bytesToWrite = (data as NSData).bytes.bindMemory(to: UInt8.self, capacity: data.count)
         let writtenBytes = writeStream.write(bytesToWrite, maxLength: data.count)
         if writtenBytes > 0 {
-            self.fileHandle?.seek(toFileOffset: offsetInFile + UInt64(writtenBytes))
+            fileHandle.seek(toFileOffset: offsetInFile + UInt64(writtenBytes))
         } else if writtenBytes == -1 {
-            self.finishOperation()
+            finishOperation()
         }
         return (true, nil)
     }
