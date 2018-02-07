@@ -140,7 +140,7 @@ public struct SessionConfiguration {
     internal var url: URL {
         var components = URLComponents(string: host)
         components?.scheme = "ftp"
-        return components?.url ?? URL()
+        return components?.url ?? URL(fileURLWithPath: "")
     }
 }
 

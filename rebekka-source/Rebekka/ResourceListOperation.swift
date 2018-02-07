@@ -41,7 +41,7 @@ open class ResourceItem: CustomStringConvertible {
     open var type: ResourceType = .unknown
     open var name: String = ""
     open var link: String = ""
-    open var date: Date = Date()
+    open var date = Date()
     open var size: Int = 0
     open var mode: Int = 0
     open var owner: String = ""
