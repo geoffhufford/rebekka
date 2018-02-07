@@ -14,49 +14,54 @@ import RebekkaTouch
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
     
-    var session: Session!
+    private var session: Session?
     
     var window: UIWindow?
     
-    func application(application: UIApplication,
-        didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
-            // Override point for customization after application launch.
-            
-            var configuration = SessionConfiguration()
-            configuration.host = "ftp://speedtest.tele2.net"
-            session = Session(configuration: configuration)
-            
-            testList()
-            //testDownload()
-            //testUpload()
-            //testCreate()
-            return true
+    func application(_ application: UIApplication,
+                     didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
+        // Override point for customization after application launch.
+        
+        var configuration = SessionConfiguration()
+        configuration.host = "ftp://speedtest.tele2.net"
+        session = Session(configuration: configuration)
+        
+        testList()
+        //            testDownload()
+        //testUpload()
+        //testCreate()
+        return true
     }
     
     func testList() {
-        session.list("/") {
+        session?.list("/") { [unowned self]
             (resources, error) -> Void in
-            print("List directory with result:\n\(resources), error: \(error)\n\n")
+            print("List directory with result:\n\(String(describing: resources)), error: \(String(describing: error))\n\n")
+            
         }
     }
     
     func testUpload() {
-        if let URL = NSBundle.mainBundle().URLForResource("TestUpload", withExtension: "png") {
-            let path = "/upload/\(NSUUID().UUIDString).png"
-            session.upload(URL, path: path) {
+        if let URL = Bundle.main.url(forResource: "TestUpload", withExtension: "png") {
+            let path = "/upload/\(UUID().uuidString).png"
+            session?.upload(URL, path: path) {
                 (result, error) -> Void in
-                print("Upload file with result:\n\(result), error: \(error)\n\n")
+                print("Upload file with result:\n\(result), error: \(String(describing: error))\n\n")
             }
         }
     }
     
-    func testDownload() {
-        self.session.download("/1MB.zip") {
+    func testDownload(_ path: String) {
+        session?.download(path, progressHandler: { progress in
+            DispatchQueue.main.async {
+                print("progress", progress)
+            }
+        }) {
             (fileURL, error) -> Void in
-            print("Download file with result:\n\(fileURL), error: \(error)\n\n")
+            print("Download file with result:\n\(String(describing: fileURL)), error: \(String(describing: error))\n\n")
             if let fileURL = fileURL {
                 do {
-                    try NSFileManager.defaultManager().removeItemAtURL(fileURL)
+                    try FileManager.default.removeItem(at: fileURL)
                 } catch let error as NSError {
                     print("Error: \(error)")
                 }
@@ -66,10 +71,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
     
     func testCreate() {
-        let name = NSUUID().UUIDString
-        session.createDirectory("/upload/\(name)") {
+        let name = UUID().uuidString
+        session?.createDirectory("/upload/\(name)") {
             (result, error) -> Void in
-            print("Create directory with result:\n\(result), error: \(error)")
+            print("Create directory with result:\n\(result), error: \(String(describing: error))")
         }
     }
     

@@ -11,9 +11,9 @@ import Foundation
 /** The base class for write stream operatons. */
 internal class WriteStreamOperation: StreamOperation {
     
-    lazy var writeStream: NSOutputStream = {
-        let cfStream = CFWriteStreamCreateWithFTPURL(nil, self.fullURL())
-        CFWriteStreamSetDispatchQueue(cfStream.takeUnretainedValue(), self.queue)
+    lazy var writeStream: OutputStream = {
+        let cfStream = CFWriteStreamCreateWithFTPURL(nil, fullUrl as CFURL)
+        CFWriteStreamSetDispatchQueue(cfStream.takeUnretainedValue(), queue)
         return cfStream.takeRetainedValue()
     }()
     
