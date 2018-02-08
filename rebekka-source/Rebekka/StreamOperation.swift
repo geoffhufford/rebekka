@@ -20,6 +20,10 @@ internal class StreamOperation: Operation, StreamDelegate {
         super.init(configuration: configuration)
     }
     
+    deinit {
+        finishOperation()
+    }
+    
     fileprivate func configureStream(_ stream: Stream) {
         stream.setProperty(true, forKey: Stream.PropertyKey(rawValue: kCFStreamPropertyShouldCloseNativeSocket as String))
         stream.setProperty(true, forKey: Stream.PropertyKey(rawValue: kCFStreamPropertyFTPFetchResourceInfo as String))
@@ -70,6 +74,7 @@ internal class StreamOperation: Operation, StreamDelegate {
     
     func finishOperation() {
         synchronized(self) {
+            currentStream?.delegate = nil
             currentStream?.close()
             currentStream = nil
             state = .finished
